@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IoT Platform Cost Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    th { background-color: #f4f4f4; }
+    input[type="number"] { 
+		width: 80px; 
+	}
+	input[type="number"].thousands-input {
+		width: 52px;
+		text-align: right;
+		padding-right: 0;
+	}
+	input[type="number"].factories-input {
+		width: 72px;
+	}
+    .total { 
+		border: 1px solid #ccc;
+		border-radius: 12px;
+		margin: 24px;
+		padding: 24px;
+	}
+	.total.no-btm-margin {
+		margin-bottom: 4px;
+	}
+    .info-icon {
+      display: inline-block;
+      margin-left: 5px;
+      color: #0077cc;
+      cursor: pointer;
+    }
+	.expand-btn.icon {
+		display: inline-block;
+		transition: all 0.25s ease;
+		cursor: pointer;
+		font-size: 0.75rem;
+	}
+	.expand-btn {
+		cursor: pointer;
+	}
+	.expand-btn.icon.open {
+		rotate: 90deg;
+	}
+	.borderless td {
+		border: 0;
+	}
+	table .has-input {
+		text-align: right;
+	}
+	table .has-input input{
+		text-align: right;
+		width: 100px;
+		padding: 8px 12px;
+		border-radius: 4px;
+		border-width: 1px;
+	}
+	td.twx-green {
+		background-color: rgb(240, 255, 240);
+	}
+	.sub-list {
+		display: none;
+		height: 0;
+		transition: all 0.25s ease;
+	}
+	.sub-list.open {
+		height: auto;
+		display: block;
+	}
+	.sub-list li {
+		list-style-type: none;
+		margin-bottom: 8px;
+		color: #555;
+	}
+	table.roles-table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table.roles-table td {
+      padding: 8px;
+      vertical-align: top;
+    }
+	/* Target the first column (Role title) */
+	.roles-table td:first-child {  
+		font-weight: bold;  
+		color: #2c3e50;  
+		width: 240px;
+	}
+	
+	/* Target the second column (Yes/No radio buttons) */
+	.roles-table td:nth-child(2) {  
+		text-align: center;  
+		width: 140px;
+	}
+	
+	/* Target the third column (Alternating text) */
+	.roles-table td:nth-child(3) {
+		font-style: italic;  
+		color: #555;  
+		/* width: calc(55% - 77px); */
+	}
+
+    .hidden {
+      display: none;
+    }
+ 
+	h1, h2, h3 {
+		margin-top: 48px;
+		margin-bottom: 24px;
+	}
+
+	.error {
+		margin-top: 0;
+		color: rgb(165, 37, 37);
+	}
+
+	.footnote {
+		font-size: 0.9rem;
+		opacity: .6;
+		margin-top: 2px;
+	}
+	.has-role {
+		color: rgb(53, 96, 53);
+	}
+	.does-not-have-role {
+		color: rgb(117, 44, 44);
+	}
+
+	.input-table {
+		max-width: 500px;
+	}
+ </style>
+
+
+</head>
+	<body>
+
+	<h1>IoT Solution Cost Calculator</h1>
+
+	<p>This guide represents an overview of many of the resources and costs necessary to create and deploy an enterprise-grade IOT solution. 
+		Asset Monitoring and Utilization (AMU) is used for the purposes of this calculator as the target use case, to demonstrate specific requirements.</p>
+
+	<p>Note that your deployment may be more or less complex, depending on several factors. This guide presented as a generic overview using standard conditions.</p>
+
+
+	<h2>Getting started</h2>
+
+	<p>Follow the steps below to walk through the requirements and costs of creating your own DIY IOT solution, as compared to using a purpose-built solution like Thingworx.</p>
+
+
+	<h3>Step 1: Does your team include the following roles?</h3>
+
+	<table class="roles-table">
+		<tbody>
+			<tr>
+				<td>Infrastructure &amp; Architecture</td>
+				<td>
+					<label><input type="radio" name="infra" onclick="toggleText(0, 'yes')" value="yes"> Yes</label>
+					<label><input type="radio" name="infra" onclick="toggleText(0, 'no')" value="no" checked> No</label>
+				</td>
+				<td>
+					<span id="yesText-0" class="has-role hidden">Great! Having someone with infrastructure and architecture expertise ensures your solution is scalable, resilient, and well-structured from the ground up.</span>
+					<span id="noText-0" class="does-not-have-role ">This role is essential for DIY IoT solutions—without it, you risk building a fragile system that can't scale or handle real-world demands.</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Connectivity &amp; Device Integration</td>
+				<td>
+					<label><input type="radio" name="connectivity" onclick="toggleText(1, 'yes')" value="yes"> Yes</label>
+					<label><input type="radio" name="connectivity" onclick="toggleText(1, 'no')" value="no" checked> No</label>
+				</td>
+				<td>
+					<span id="yesText-1" class="has-role hidden">Excellent! A team member skilled in device integration can streamline connectivity and reduce time spent troubleshooting hardware communication.</span>
+					<span id="noText-1" class="does-not-have-role ">Device integration is a cornerstone of IoT—without this expertise, connecting and managing devices can become a major bottleneck.</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Data Modeling &amp; Processing</td>
+				<td>
+					<label><input type="radio" name="dataModeling" onclick="toggleText(2, 'yes')" value="yes"> Yes</label>
+					<label><input type="radio" name="dataModeling" onclick="toggleText(2, 'no')" value="no" checked> No</label>
+				</td>
+				<td>
+					<span id="yesText-2" class="has-role hidden">Perfect! Someone who understands data modeling can help structure your data effectively and enable meaningful analytics.</span>
+					<span id="noText-2" class="does-not-have-role ">DIY platforms need strong data architecture—without it, your data may be inconsistent, hard to query, and difficult to scale.</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Application Development</td>
+				<td>
+					<label><input type="radio" name="appDev" onclick="toggleText(3, 'yes')" value="yes"> Yes</label>
+					<label><input type="radio" name="appDev" onclick="toggleText(3, 'no')" value="no" checked> No</label>
+				</td>
+				<td>
+					<span id="yesText-3" class="has-role hidden">Good! Application developers bring your IoT data to life through dashboards, workflows, and user interfaces.</span>
+					<span id="noText-3" class="does-not-have-role ">Without this role, building usable applications on top of your IoT data will be slow and potentially unusable for stakeholders.</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Security &amp; Compliance</td>
+				<td>
+					<label><input type="radio" name="security" onclick="toggleText(4, 'yes')" value="yes"> Yes</label>
+					<label><input type="radio" name="security" onclick="toggleText(4, 'no')" value="no" checked> No</label>
+				</td>
+				<td>
+					<span id="yesText-4" class="has-role hidden">Fantastic! Security and compliance experts help protect your data and ensure your solution meets regulatory standards.</span>
+					<span id="noText-4" class="does-not-have-role ">IoT systems are vulnerable without proper security—this role is critical to avoid breaches and ensure trustworthiness.</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Testing &amp; QA</td>
+				<td>
+					<label><input type="radio" name="testing" onclick="toggleText(5, 'yes')" value="yes"> Yes</label>
+					<label><input type="radio" name="testing" onclick="toggleText(5, 'no')" value="no" checked> No</label>
+				</td>
+				<td>
+					<span id="yesText-5" class="has-role hidden">Great! QA specialists ensure your solution works reliably across devices and conditions, catching issues before they reach users.</span>
+					<span id="noText-5" class="does-not-have-role ">Skipping this role in a DIY build can lead to unstable releases, bugs in production, and costly rework.</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td>DevOps &amp; Monitoring</td>
+				<td>
+					<label><input type="radio" name="devops" onclick="toggleText(6, 'yes')" value="yes"> Yes</label>
+					<label><input type="radio" name="devops" onclick="toggleText(6, 'no')" value="no" checked> No</label>
+				</td>
+				<td>
+					<span id="yesText-6" class="has-role hidden">Excellent! DevOps ensures smooth deployment, uptime, and performance monitoring—key for any production-grade IoT system.</span>
+					<span id="noText-6" class="does-not-have-role ">Without DevOps, maintaining and scaling your DIY solution becomes risky and labor-intensive.</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Support &amp; Maintenance</td>
+				<td>
+					<label><input type="radio" name="support" onclick="toggleText(7, 'yes')" value="yes"> Yes</label>
+					<label><input type="radio" name="support" onclick="toggleText(7, 'no')" value="no" checked> No</label>
+				</td>
+				<td>
+					<span id="yesText-7" class="has-role hidden">Great! Having support and maintenance capabilities means your team can respond quickly to issues and keep the system running smoothly.</span>
+					<span id="noText-7" class="does-not-have-role ">DIY solutions require ongoing upkeep—without this role, downtime and unresolved issues can severely impact operations.</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+
+
+
+
+
+	<h3>Step 2: What is your team's size and cost?</h3>
+
+	<table class="borderless input-table">
+		<tbody>
+			<tr>
+				<td>Number of SME's Available:</td>
+				<td class="has-input"><input type="number" id="availableEngineers" value="2"></td>
+			</tr>
+			<tr>
+				<td>Average Cost per Employee (yearly):</td>
+				<td class="has-input">$ <input type="number" id="costPerEngineer" value="150000"></td>
+			</tr>
+		</tbody>
+	</table>
+	<!-- <label>Number of Engineers Available: <input type="number" id="availableEngineers" value="2"></label><br><br>
+	<label>Average Cost per Engineer (yearly): $<input type="number" id="costPerEngineer" value="150000"></label><br><br> -->
+
+
+
+
+	<h3>Step 3: Engineering requirements</h3>
+
+	<p>Below is a high level overview of typical resource requirements to create an Asset Monitoring and Utilization solution.</p>
+
+
+	<table>
+		<tr>
+		<th>Line Item</th>
+		<!-- <th>Include?</th> -->
+		<!-- <th>Engineers Required</th> -->
+		<th>Person Months<br>to Build MVP</th>
+		<th>Person Months<br>to Maintain</th>
+		<th>Person Months<br>with Thingworx *</th>
+		</tr>
+		<tr title="Designing scalable infrastructure including cloud setup, networking, and availability. Estimated 2 engineers over 6 months based on typical enterprise architecture complexity.">
+		<td><div class="expand-btn icon">▶</div><label class="expand-btn"> Infrastructure & Architecture</label>
+			<ul class="sub-list">
+				<li>Setup development infrastructure (repositories, CI/CD pipeline, QA environments)</li>
+				<li>Design scalable and highly available architecture</li>
+				<li>Select and configure cloud/on-prem hosting</li>
+				<li>Provision compute, storage, and networking resources</li>
+				<li>Implement multi-region or edge deployment strategies</li>
+				<li>Establish monitoring and alerting infrastructure</li>
+				<li>Define disaster recovery and backup plans</li>
+				<li>Manage infrastructure as code (e.g., Terraform, CloudFormation)</li>
+				<li>Coordinate with security and compliance teams</li>
+			</ul>
+		</td>
+		<!-- <td><input type="checkbox" id="infra" checked></td> -->
+		<td>6</td>
+		<td>2</td>
+		<td class="twx-green">0</td>
+		</tr>
+		<tr title="Building device connectivity using protocols like MQTT, OPC UA, etc. Requires 2 engineers over 5 months for integration and testing.">
+		<td><div class="expand-btn icon">▶</div><label class="expand-btn"> Connectivity & Device Integration</label>
+			<ul class="sub-list">
+				<li>Develop support for protocols (MQTT, OPC UA, CoAP, etc.)</li>
+				<li>Build device onboarding and provisioning workflows</li>
+				<li>Implement secure communication channels</li>
+				<li>Handle edge device variability and firmware updates</li>
+				<li>Test connectivity across environments</li>
+			</ul>
+		</td>
+		<!-- <td><input type="checkbox" id="connectivity" checked></td> -->
+		<td>5</td>
+		<td>5</td>
+		<td class="twx-green">1</td>
+		</tr>
+		<tr title="Creating a unified data model and processing pipeline. Typically handled by 1 engineer over 4 months.">
+		<td><div class="expand-btn icon">▶</div><label class="expand-btn"> Data Modeling & Processing </label>
+			<ul class="sub-list">
+				<li>Design unified data models for assets and telemetry</li>
+				<li>Build ingestion pipelines for real-time and batch data</li>
+				<li>Normalize and validate incoming data</li>
+				<li>Implement time-series storage and analytics</li>
+				<li>Ensure scalability and performance under load</li>
+			</ul>
+		</td>
+		<!-- <td><input type="checkbox" id="dataModel" checked></td> -->
+		<td>4</td>
+		<td>1</td>
+		<td class="twx-green">1</td>
+		</tr>
+		<tr title="Developing frontend and backend applications. Estimated 3 engineers over 8 months for full-stack development.">
+		<td><div class="expand-btn icon">▶</div><label class="expand-btn"> Application Development </label>
+			<ul class="sub-list">
+				<li>Gather requirements from the userbase</li>
+				<li>Design and build user interfaces/dashboards</li>
+				<li>Develop backend services and APIs</li>
+				<li>Implement role-based access and user management</li>
+				<li>Integrate with data and device layers (such as Kepware)</li>
+				<li>Conduct usability testing and iteration</li>
+			</ul>
+		</td>
+		<!-- <td><input type="checkbox" id="appDev" checked></td> -->
+		<td>24</td>
+		<td>12</td>
+		<td class="twx-green">1.5</td>
+		</tr>
+		<tr title="Implementing security best practices, IAM, and compliance. Typically 1 engineer over 3 months.">
+		<td><div class="expand-btn icon">▶</div><label class="expand-btn"> Security & Compliance </label>
+			<ul class="sub-list">
+				<li>Implement identity and access management (IAM)</li>
+				<li>Conduct threat modeling and risk assessments</li>
+				<li>Ensure encryption at rest and in transit</li>
+				<li>Perform regular penetration testing</li>
+				<li>Respond to discovered vulnerabilities, issues, and incidents</li>
+				<li>Perform regular code scanning for vulnerabilities and dependency CVEs</li>
+				<li>Align with industry standards (e.g., ISO, NIST, GDPR)</li>
+			</ul>
+		</td>
+		<!-- <td><input type="checkbox" id="security" checked></td> -->
+		<td>4</td>
+		<td>2</td>
+		<td class="twx-green">1</td>
+		</tr>
+		<tr title="Building automated test pipelines and QA processes. Estimated 2 engineers over 4 months.">
+		<td><div class="expand-btn icon">▶</div><label class="expand-btn"> Testing & QA</label>
+			<ul class="sub-list">
+				<li>Build automated test suites (unit, integration, performance)</li>
+				<li>Set up CI pipelines with test gates</li>
+				<li>Create staging environments for validation</li>
+				<li>Perform manual exploratory testing</li>
+				<li>Track and resolve defects across teams</li>
+			</ul>
+		</td>
+		<!-- <td><input type="checkbox" id="qa" checked></td> -->
+		<td>4</td>
+		<td>2</td>
+		<td class="twx-green">0.5</td>
+		</tr>
+		<tr title="Setting up CI/CD, monitoring, and deployment strategies. Requires 2 engineers the entire year.">
+		<td><div class="expand-btn icon">▶</div><label class="expand-btn"> DevOps & Monitoring </label>
+			<ul class="sub-list">
+				<li>Set up CI/CD pipelines for all services</li>
+				<li>Implement observability (logs, metrics, alerts)</li>
+				<li>Manage deployment strategies (blue/green, canary, go-live)</li>
+				<li>Keeping libraries, components, and code up to date</li>
+				<li>Automate infrastructure provisioning</li>
+				<li>Monitor uptime, latency, and error rates</li>
+			</ul>
+		</td>
+		<!-- <td><input type="checkbox" id="devops" checked></td> -->
+		<td>12</td>
+		<td>6</td>
+		<td class="twx-green">1</td>
+		</tr>
+		<tr title="Ongoing support, bug fixes, and documentation. Typically 1 engineer over 2 months.">
+		<td><div class="expand-btn icon">▶</div><label class="expand-btn"> Support & Maintenance </label>
+			<ul class="sub-list">
+				<li>Provide ongoing bug fixes and updates</li>
+				<li>Maintain documentation and developer guides</li>
+				<li>Respond to customer issues and feedback</li>
+				<li>Monitor system health and performance</li>
+				<li>Plan and execute feature enhancements</li>
+			</ul>
+		</td>
+		<!-- <td><input type="checkbox" id="support" checked></td> -->
+		<td>4</td>
+		<td>4</td>
+		<td class="twx-green">1</td>
+		</tr>
+	</table>
+	<p class="footnote">* Assumes SAAS deployment of ThingWorx</p>
+
+
+	<h3>Step 4: Scale</h3>
+
+	<p>As the number of factories grows, as well as the number of assets, the scale and complexity can dramatically increase.</p>
+
+	<table class="borderless input-table">
+		<tbody>
+			<tr>
+				<td>Number of Factories:</td>
+				<td class="has-input"><input type="number" class="factories-input" id="numberOfFactories" value="1"></td>
+			</tr>
+			<tr>
+				<td>Number of Assets:</td>
+				<td class="has-input"><input type="number" class="thousands-input" id="numberOfAssets" value="1">,000</td>
+			</tr>
+		</tbody>
+	</table>
+
+
+
+	<h2>Total</h2>
+
+	<p>Based on your inputs above, the total costs of building an IOT solution are as follows. Note that your own real-world numbers may differ. For the purposes of these 
+		calculations, each additional 1 factory and 1000 assets adds more cost (25% and 5%, respectively, up to a limit) due to increased complexity.
+	</p>
+
+	<p class="total" id="result"></p>
+
+	<p>&nbsp;</p>
+
+	<p>In comparison, with Thingworx, much of the resource overhead of building, deploying, and maintaining an IOT solution is already taken care of. 
+		As a result, a similar deployment using ThingWorx could see the below costs:</p>
+
+	<p class="total no-btm-margin" id="twx-result"></p>
+
+	<p class="footnote">** Total above does not include ThingWorx licenses.</p>
+
+	<p>In addition to the cost benefits of a single deployment, ThingWorx is cheaper long-term as more use cases can be built for and handled by the platform. 
+		Instead of paying for additional services and applications as the use cases expand past the first one, new applications can be built on top of ThingWorx 
+		that leverage your existing infrastructure. This makes ThingWorx incredibly affordable at scale, as more use cases are added.</p>
+
+	<p>&nbsp;</p>
+
+
+	<h2>Contact us</h2>
+
+	<p>To learn how ThingWorx can help you and your specific challenges, schedule a call with one of our experts. We'll deep dive on your challenges 
+		and demonstrate the value ThingWorx can provide.
+	</p>
+
+	<p><button>Contact us</button></p>
+
+
+
+	<script>
+
+		function toggleText(rowIndex, value) {
+			const yesText = document.getElementById(`yesText-${rowIndex}`);
+			const noText = document.getElementById(`noText-${rowIndex}`);
+			if (value === 'yes') {
+				yesText.style.display = 'inline';
+				noText.style.display = 'none';
+			} else {
+				yesText.style.display = 'none';
+				noText.style.display = 'inline';
+			}
+		}
+
+
+		function calculateTotal() {
+			const tasks = [
+				{ id: "infra", months: 6, ongoing: 2, twx: 0 },			// engineers: 2, 
+				{ id: "connectivity", months: 5, ongoing: 5, twx: 1 },	// engineers: 2, 
+				{ id: "dataModel", months: 4, ongoing: 1, twx: 1 },		// engineers: 1, 
+				{ id: "appDev", months: 24, ongoing: 12, twx: 1.5 },	// engineers: 2, 
+				{ id: "security", months: 4, ongoing: 2, twx: 1 },		// engineers: 1, 
+				{ id: "qa", months: 4, ongoing: 2, twx: 0.5 },			// engineers: 2, 
+				{ id: "devops", months: 12, ongoing: 6, twx: 1 },		// engineers: 1, 
+				{ id: "support", months: 4, ongoing: 4, twx: 1}			// engineers: 1, 
+			];
+
+			let initialEngineerMonths = 0;
+			let ongoingEngineerMonths = 0;
+			let twxEngineerMonths = 0;
+
+
+			tasks.forEach(task => {
+				//if (document.getElementById(task.id).checked) {
+						initialEngineerMonths += task.months;
+						ongoingEngineerMonths += task.ongoing;
+						twxEngineerMonths += task.twx;
+					
+				//}
+			});
+
+
+			const availableEngineers = parseInt(document.getElementById("availableEngineers").value) || 1;
+			const costPerEngineer = parseInt(document.getElementById("costPerEngineer").value)/12 || 0;
+
+			var totalFactories = parseInt(document.getElementById("numberOfFactories").value, 10); // Math.max(0.2 * ( || 1), 1);
+			var totalAssets = parseInt(document.getElementById("numberOfAssets").value, 10); 
+
+			if(totalFactories < 1) totalFactories = 1;
+			var totalFactoriesMultiplier = 1 + (totalFactories-1) / 4.0;
+			if(totalFactoriesMultiplier > 2) totalFactoriesMultiplier = 2;
+
+			if(totalAssets < 1) totalAssets = 1;
+			var totalAssetsMultiplier = 1 + (totalAssets-1) / 20.0;
+			if(totalAssetsMultiplier > 2.5) totalAssetsMultiplier = 2.5;
+
+			var totalMultiplier = totalFactoriesMultiplier * totalAssetsMultiplier;
+			var twxMultiplier = totalMultiplier;
+			// curve the twxMultiplier down the higher it is. If it starts out at 5 or less, it will just be one .75 multiplier
+			// if(twxMultiplier > 2) twxMultiplier = twxMultiplier * .75;
+			// if(twxMultiplier > 4) twxMultiplier = twxMultiplier * .75;
+			// if(twxMultiplier > 5) twxMultiplier = twxMultiplier * .75;
+
+
+
+			const totalTimeMonths = Math.ceil(initialEngineerMonths / availableEngineers) * totalMultiplier;
+			const totalOngoingMonths = Math.ceil(ongoingEngineerMonths / availableEngineers) * totalMultiplier;
+			const twxTimeMonths = Math.ceil(twxEngineerMonths / availableEngineers) * twxMultiplier;
+
+			const totalCost = initialEngineerMonths * costPerEngineer * totalMultiplier;
+			const ongoingMonthlyCost = ongoingEngineerMonths * costPerEngineer * totalMultiplier;
+			const twxCost = twxEngineerMonths * costPerEngineer * twxMultiplier;
+
+			var twxImplementationCost = 80000;
+			if(totalFactories > 1) twxImplementationCost += 60000;
+			if(totalFactories > 2) twxImplementationCost += 40000;
+			if(totalFactories > 3) twxImplementationCost += 20000;
+
+
+			document.getElementById("result").innerHTML = "";
+
+			if(!areAllYesSelected()){
+				document.getElementById("result").innerHTML += "<p class='error'>⚠️ Not all roles are covered. " + 
+					"You will need to add missing expertise to your team before you can build and deploy your own IOT solution.</p>";
+			} 
+		
+			document.getElementById("result").innerHTML += '<p>'+
+				`Estimated Time to Value: <b>${(totalTimeMonths/12.0).toFixed(1)} years</b><br>` +
+				`Estimated One-Time Build Cost: <b>\$${totalCost.toLocaleString()}</b><br>` +
+				`Estimated Ongoing Annual Cost: <b>\$${ongoingMonthlyCost.toLocaleString()}</b>`+
+				'</p>';
+		
+
+
+
+			document.getElementById("twx-result").innerHTML =
+				`Estimated Time to Value: <b>${(twxTimeMonths/12.0).toFixed(1)} years</b><br>` +
+				`Estimated Ongoing Annual Cost: <b>\$${twxCost.toLocaleString()}</b>**<br>` +
+				`Estimated Implementation Cost: <b>\$${twxImplementationCost.toLocaleString()}</b>`;
+	
+		}
+
+		document.addEventListener("DOMContentLoaded", function () {
+			const expandButtons = document.querySelectorAll(".expand-btn");
+
+			expandButtons.forEach(btn => {
+				btn.addEventListener("click", () => {
+					const parent = btn.parentElement;
+ 					const children = Array.from(parent.children);
+
+					children.forEach( (child)=>{
+						child.classList.toggle("open");
+					});
+					// const details = getNextUlSibling(btn);
+					// if (details && details.tagName.toLowerCase() === "ul") {
+					// 	btn.classList.toggle("open");
+					// 	details.classList.toggle("show");
+					// }
+				});
+			});
+
+
+			const inputs = document.querySelectorAll("input[type='text'], input[type='number'], input[type='radio'], input[type='checkbox']");  
+			
+			inputs.forEach(input => {
+				const eventType = input.type === "radio" || input.type === "checkbox" ? "change" : "input";
+				input.addEventListener(eventType, handleInputChange);  
+			});
+
+			calculateTotal();
+		});
+
+
+		function getNextUlSibling(element) {
+			let nextSibling = element.nextElementSibling;
+			while (nextSibling) {
+				if (nextSibling.tagName === 'UL') {
+				return nextSibling;
+				}
+				nextSibling = nextSibling.nextElementSibling;
+			}
+			return null; // No next ul sibling found
+		}
+
+
+		function handleInputChange(event) {
+			calculateTotal();
+		}
+
+
+		function areAllYesSelected() {
+			const categories = [ "infra", "connectivity", "dataModeling", "appDev", "security", "testing", "devops", "support"];
+			let allYes = true;  
+			
+			categories.forEach(name => {
+				const yesRadio = document.querySelector(`input[name="${name}"][value="yes"]`);
+				if (!yesRadio || !yesRadio.checked) {
+					allYes = false;
+				}
+			});
+
+			return allYes;
+
+		}
+
+
+	</script>
+
+</body>
+</html>
